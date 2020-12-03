@@ -12,37 +12,60 @@ class CoffeeMachine(
         val water: Int,
         val milk: Int,
         val coffee: Int,
-        val price: Int
+        val price: Int,
     ) {
         ESPRESSO(250, 0, 16, 4),
         LATTE(350, 75, 20, 7),
-        CAPPUCCINO(200, 100, 12, 6)
+        CAPPUCCINO(200, 100, 12, 6),
     }
 
     fun requestAction() {
-        print("Write action (buy, fill, take): ")
-        when (readLine()!!) {
-            "buy" -> buy()
-            "fill" -> fill()
-            "take" -> take()
+        while (true) {
+            print("Write action (buy, fill, take, remaining, exit): ")
+            when (readLine()!!.also { println() }) {
+                "buy" -> buy()
+                "fill" -> fill()
+                "take" -> take()
+                "remaining" -> printState()
+                "exit" -> break
+            }
         }
     }
 
     private fun buy() {
-        print("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: ")
-        when (readLine()!!.toInt()) {
-            1 -> buyCoffee(CoffeeType.ESPRESSO)
-            2 -> buyCoffee(CoffeeType.LATTE)
-            3 -> buyCoffee(CoffeeType.CAPPUCCINO)
+        while (true) {
+            print("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: ")
+            when (readLine()!!) {
+                "1" -> {
+                    buyCoffee(CoffeeType.ESPRESSO)
+                    break
+                }
+                "2" -> {
+                    buyCoffee(CoffeeType.LATTE)
+                    break
+                }
+                "3" -> {
+                    buyCoffee(CoffeeType.CAPPUCCINO)
+                    break
+                }
+                "back" -> break
+            }
         }
     }
 
-    private fun buyCoffee(coffeeType: CoffeeType) {
-        water -= coffeeType.water
-        milk -= coffeeType.milk
-        coffee -= coffeeType.coffee
-        cups--
-        money += coffeeType.price
+    private fun buyCoffee(coffeeType: CoffeeType) = when {
+        water - coffeeType.water < 0 -> println("Sorry, not enough water!\n")
+        milk - coffeeType.milk < 0 -> println("Sorry, not enough milk!\n")
+        coffee - coffeeType.coffee < 0 -> println("Sorry, not enough coffee beans!\n")
+        cups - 1 < 0 -> println("Sorry, not enough disposable cups!\n")
+        else -> {
+            println("I have enough resources, making you a coffee!\n")
+            water -= coffeeType.water
+            milk -= coffeeType.milk
+            coffee -= coffeeType.coffee
+            cups--
+            money += coffeeType.price
+        }
     }
 
     private fun fill() {
@@ -70,7 +93,7 @@ class CoffeeMachine(
             |$milk of milk
             |$coffee of coffee beans
             |$cups of disposable cups
-            |$money of money
+            |$$money of money
         """.trimMargin()
     }
 }
@@ -78,9 +101,5 @@ class CoffeeMachine(
 fun main() {
     val coffeeMachine = CoffeeMachine()
 
-    coffeeMachine.printState()
-
     coffeeMachine.requestAction()
-
-    coffeeMachine.printState()
 }
